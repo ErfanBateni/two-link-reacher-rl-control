@@ -44,8 +44,7 @@ The core challenge involves navigating the nonlinear dynamics of a multi-link ro
 ---
 
 ## 📂 Repository Structure
-*   `reacher_env.py`: Custom continuous-time dynamics Gymnasium environment (`ReacherEnv`).
-*   `wrappers.py`: Environment wrapper for state augmentation (`DDPGStateWrapper`).
-*   `ddpg.py`: Implementation of the DDPG algorithm, including Actor/Critic networks, Replay Buffer, and Noise models (Gaussian and OU).
-*   `train_ddpg.py`: Main training script for running the DDPG agent and generating learning curves.
+*   `Part 1-4.ipynb`: Jupyter Notebook containing the custom Gymnasium environment implementation, classical baselines (Task-Space PID, IK+PD), and the discrete-action RL agent (N-Step SARSA).
+*   `Part 5-9.ipynb`: Jupyter Notebook focusing on continuous control. It includes the DDPG agent implementation (Actor/Critic networks, Replay Buffer, Gaussian/OU noise models), state wrappers, training loops, and ablation study results.
+*   `Report.pdf`: The comprehensive technical report covering mathematical modeling, standardized metrics (Mean Tracking Error, Success Rate, Control Energy), and training curves.
 *   `Report.pdf`: The comprehensive technical report covering mathematical modeling, standardized metrics (Mean Tracking Error, Success Rate, Control Energy), and training curves.
