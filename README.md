@@ -15,28 +15,23 @@ The core challenge involves navigating the nonlinear dynamics of a multi-link ro
 
 ## 🤖 Implemented Control Strategies
 
-### 1. Classical Baselines
-*   **Task-Space PID:** A model-free classical controller calculating corrective torques directly from Cartesian position errors using the Jacobian transpose.
-*   **Inverse Kinematics + Joint-Space PID (IK + PD):** Utilizes geometric inverse kinematics to compute desired joint angles, followed by PD control in the joint space. This method served as the upper-bound baseline, providing the highest accuracy and stability.
-
-### 2. Reinforcement Learning Agents
-*   **N-Step SARSA (Discrete RL):** An on-policy algorithm with a discretized action space (torque levels). Due to the continuous nature of the robotic dynamics, this method struggled to converge to an optimal policy.
-*   **Deep Deterministic Policy Gradient (DDPG):** An off-policy, continuous-action actor-critic algorithm. Through hyperparameter tuning and appropriate exploration noise, DDPG successfully learned continuous control policies, producing smoother torque profiles and demonstrating energy efficiency compared to discrete methods.
+### 1. Continuous Control with DDPG
+*   **Deep Deterministic Policy Gradient (DDPG):** An off-policy, continuous-action actor-critic algorithm. Through hyperparameter tuning and appropriate exploration noise, DDPG successfully learned continuous control policies, producing smoother torque profiles and demonstrating energy efficiency compared to discrete methods. The agent is trained to minimize the distance between the end-effector and the target position.
 
 ---
 
 ## 🧪 Experiments & Ablation Studies
 
-1.  **Exploration Noise Analysis:** Compared Gaussian noise against temporally correlated **Ornstein-Uhlenbeck (OU) noise**. The OU process significantly improved DDPG stability and learning by injecting smooth, inertia-friendly exploration into the torque actions.
-2.  **Generalization (Distribution Shift):** Tested the RL agent's robustness against unseen trajectories (e.g., changing target velocity, radius, or navigating complex Lissajous curves).
-3.  **State Representation Ablation:** Evaluated minimal state definitions versus augmented states. Providing the agent with explicit end-effector coordinates ($x_{end}, y_{end}$) alongside joint angles drastically improved learning efficiency and tracking accuracy.
+1.  **Exploration Noise Analysis:** Compared Gaussian noise against temporally correlated **Ornstein-Uhlenbeck (OU) noise**. The OU process significantly improved DDPG stability and learning by injecting smooth, inertia-friendly exploration into the torque actions. The performance is evaluated based on the mean tracking error and success rate across multiple seeds.
+2.  **State Representation Ablation:** Implemented a state wrapper (`DDPGStateWrapper`) to augment the minimal state observation. Providing the agent with explicit end-effector coordinates ($x_{end}, y_{end}$) alongside joint angles ($x_{t}, y_{t}, \theta_{1}, \theta_{2}, \dot{\theta}_{1}, \dot{\theta}_{2}$) is crucial for improving learning efficiency and tracking accuracy.
 
 ---
 
 ## 📊 Results Summary
-Based on the comprehensive final report:
-*   **Classical controllers (especially IK + PD)** remain highly reliable and precise when the system's exact mathematical model is known.
-*   **DDPG** demonstrated a strong capacity to learn complex, continuous-time dynamics without explicit knowledge of the system model. While it yielded smooth, low-energy trajectories, it requires significant data and hyperparameter tuning to match the strict tracking accuracy of classical IK methods.
+*   The DDPG agent demonstrates the capability to learn complex, continuous-time dynamics without explicit knowledge of the system model.
+*   However, the learning process exhibits high variance and instability, as evidenced by the highly irregular return and error curves.
+*   The agent occasionally achieves very low errors and returns close to zero, indicating it has learned useful control behaviors, but fails to apply them consistently across episodes.
+*   This instability is characteristic of DDPG trained with a limited number of steps (15,000 steps across 100 episodes) on a task with randomly changing targets, highlighting the limitations of the current training setup in achieving full convergence and generalization.
 
 ---
 
@@ -44,11 +39,13 @@ Based on the comprehensive final report:
 *   **Python, NumPy, PyTorch** (Deep Learning implementations)
 *   **OpenAI Gymnasium** (Custom environment architecture)
 *   **Pygame** (Rendering and human-in-the-loop interactive control)
+*   **Matplotlib** (Plotting learning curves and performance metrics)
 
 ---
 
 ## 📂 Repository Structure
-*   `reacher_env.py`: Custom continuous-time dynamics Gymnasium environment.
-*   `/Notebooks`: Jupyter notebooks containing PID, SARSA, and DDPG training loops, evaluation metrics, and ablation studies.
-*   `play_pygame.py`: Interactive script to control the robotic arm via keyboard.
+*   `reacher_env.py`: Custom continuous-time dynamics Gymnasium environment (`ReacherEnv`).
+*   `wrappers.py`: Environment wrapper for state augmentation (`DDPGStateWrapper`).
+*   `ddpg.py`: Implementation of the DDPG algorithm, including Actor/Critic networks, Replay Buffer, and Noise models (Gaussian and OU).
+*   `train_ddpg.py`: Main training script for running the DDPG agent and generating learning curves.
 *   `Report.pdf`: The comprehensive technical report covering mathematical modeling, standardized metrics (Mean Tracking Error, Success Rate, Control Energy), and training curves.
